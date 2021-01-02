@@ -73,17 +73,25 @@ const MyApp = ({ Component, pageProps }) => {
       () => Cookie.set("cart", cart.items);
       console.log(cart);
     } else {
-      updatedItem = cart.items.map((item) => {
-        item.id === newItem.id
-          ? (updatedItem = { ...item, quantity: item.quantity + 1 })
-          : item;
-      });
+      // const addedItem = items.find((i) => i.id === item.id);
+      // updatedItem = { ...addedItem, quantity: addedItem.quantity + 1 };
+      // setCartHandler({
+      //   items: [...items, updatedItem],
+      //   total: cart.total + item.price,
+      // });
+      // () => Cookie.set("cart", cart.items);
+
+      const itemIndex = items.findIndex((el) => el.id === item.id);
+      let updatedCart = [...items];
+      updatedCart[itemIndex] = {
+        ...updatedCart[itemIndex],
+        quantity: updatedCart[itemIndex].quantity + 1,
+      };
       setCartHandler({
-        items: [...items, updatedItem],
+        items: updatedCart,
         total: cart.total + item.price,
       });
       () => Cookie.set("cart", cart.items);
-      console.log(cart);
     }
   };
   const removeItemHandler = (item) => {
