@@ -2,16 +2,12 @@ import React, { useContext, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Button, Card, CardBody, CardTitle, Badge } from "reactstrap";
-
 import AppContext from "../../context/AppContext";
 
 const Cart = () => {
   const appContext = useContext(AppContext);
   const router = useRouter();
-
   const { cart, isAuthenticated } = appContext;
-
-
 /**
  * The only thing React Context will not take care of for us is preserving items through a page refresh, 
  * for that you would want to save the items to a cookie or DB and restore that way in a real world application.

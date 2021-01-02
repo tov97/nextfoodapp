@@ -1,21 +1,21 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import App from "next/app";
 import Head from "next/head";
 import Layout from "../components/Layout";
 //import withData from "../lib/apollo";
-import {ApolloProvider} from "@apollo/client";
-import {useApollo} from "../lib/apollo"
+import { ApolloProvider } from "@apollo/client";
+import { useApollo } from "../lib/apollo";
 // Auth
 import Cookie from "js-cookie";
 import fetch from "isomorphic-fetch";
 import AppContext from "../context/AppContext";
 
-const MyApp = ({Component, pageProps}) => {
+const MyApp = ({ Component, pageProps }) => {
   const [user, setUser] = useState(null);
   const [cart, setCart] = useState({
     items: [],
     total: 0,
-  })
+  });
   const apolloClient = useApollo(pageProps.initialApolloState);
 
   useEffect(() => {
@@ -26,9 +26,10 @@ const MyApp = ({Component, pageProps}) => {
     if (typeof cart === "string" && cart !== "undefined") {
       console.log("foyd");
       JSON.parse(cart).forEach((item) => {
-        setCartHandler(
-          { items: JSON.parse(cart), total: item.price * item.quantity },
-        );
+        setCartHandler({
+          items: JSON.parse(cart),
+          total: item.price * item.quantity,
+        });
       });
     }
     if (token) {
@@ -49,98 +50,94 @@ const MyApp = ({Component, pageProps}) => {
         setUser(user);
       });
     }
-  }, [])
+  }, []);
 
-  const setUserHandler = (user) =>{
+  const setUserHandler = (user) => {
     setUser(user);
-  }
-  const setCartHandler = (cart) =>{
-    setCart(cart)
-  }
-  const addItemHandler = (item) =>{
-    let {items} = cart;
+  };
+  const setCartHandler = (cart) => {
+    setCart(cart);
+  };
+  const addItemHandler = (item) => {
+    let { items } = cart;
+    let updatedItem;
     //check for item already in cart
     //if not in cart, add item if item is found increase quanity ++
     const newItem = items.find((i) => i.id === item.id);
-    // if item is not new, add to cart, set quantity to 1
     if (!newItem) {
-      //set quantity property to 1
-      Object.assign({}, item, {quantity: "1"})
-      setCartHandler(
-        {
-            items: [...items, item],
-            total: cart.total + item.price,
-        });
-      () => Cookie.set("cart", cart.items)
+      updatedItem = { ...item, quantity: 1 };
+      setCartHandler({
+        items: [...items, updatedItem],
+        total: cart.total + item.price,
+      });
+      () => Cookie.set("cart", cart.items);
       console.log(cart);
     } else {
-      setCartHandler(
-       {
-            items: cart.items.map((item) =>
-              item.id === newItem.id
-                ? Object.assign({}, item, { quantity: item.quantity + 1 })
-                : item
-            ),
-            total: cart.total + item.price,
-          },
-        () => Cookie.set("cart", cart.items)
-      );
+      updatedItem = cart.items.map((item) => {
+        item.id === newItem.id
+          ? (updatedItem = { ...item, quantity: item.quantity + 1 })
+          : item;
+      });
+      setCartHandler({
+        items: [...items, updatedItem],
+        total: cart.total + item.price,
+      });
+      () => Cookie.set("cart", cart.items);
       console.log(cart);
     }
   };
   const removeItemHandler = (item) => {
-    let {items} = cart;
+    let { items } = cart;
     //check for item already in cart
     //if not in cart, add item if item is found increase quanity ++
     const newItem = items.find((i) => i.id === item.id);
     if (newItem.quantity > 1) {
       setCart(
-          {
-            items: cart.items.map((item) =>
-              item.id === newItem.id
-                ? Object.assign({}, item, { quantity: item.quantity - 1 })
-                : item
-            ),
-            total: cart.total - item.price,
-          },
-       
+        {
+          items: cart.items.map((item) =>
+            item.id === newItem.id
+              ? Object.assign({}, item, { quantity: item.quantity - 1 })
+              : item
+          ),
+          total: cart.total - item.price,
+        },
+
         () => Cookie.set("cart", cart.items)
       );
     } else {
       const items = [...cart.items];
       const index = items.findIndex((i) => i.id === newItem.id);
       items.splice(index, 1);
-      setCart(
-        { items: items, total: cart.total - item.price },
-        () => Cookie.set("cart", cart.items)
+      setCart({ items: items, total: cart.total - item.price }, () =>
+        Cookie.set("cart", cart.items)
       );
     }
-  }
-    return (
-      <ApolloProvider client={apolloClient}>
-        <AppContext.Provider
+  };
+  return (
+    <ApolloProvider client={apolloClient}>
+      <AppContext.Provider
         value={{
           user: user,
           isAuthenticated: !!user,
           setUser: setUserHandler,
           cart: cart,
           addItem: addItemHandler,
-          removeItem: removeItemHandler
+          removeItem: removeItemHandler,
         }}
-        >
-          <Head>
+      >
+        <Head>
           <link
             rel="stylesheet"
             href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
             integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
             crossOrigin="anonymous"
           />
-         </Head>
-          <Layout> 
-            <Component {...pageProps} />
-          </Layout>
-        </AppContext.Provider>
-      </ApolloProvider>
-    );
-  }
-  export default MyApp;
+        </Head>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </AppContext.Provider>
+    </ApolloProvider>
+  );
+};
+export default MyApp;
