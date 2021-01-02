@@ -73,14 +73,6 @@ const MyApp = ({ Component, pageProps }) => {
       () => Cookie.set("cart", cart.items);
       console.log(cart);
     } else {
-      // const addedItem = items.find((i) => i.id === item.id);
-      // updatedItem = { ...addedItem, quantity: addedItem.quantity + 1 };
-      // setCartHandler({
-      //   items: [...items, updatedItem],
-      //   total: cart.total + item.price,
-      // });
-      // () => Cookie.set("cart", cart.items);
-
       const itemIndex = items.findIndex((el) => el.id === item.id);
       let updatedCart = [...items];
       updatedCart[itemIndex] = {
